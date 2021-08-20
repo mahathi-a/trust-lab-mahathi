@@ -1,0 +1,72 @@
+---
+title: "Summary"
+author: "Mahathi Allepally"
+date: "8/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+```
+
+# Project details
+
+The purpose of this project is to analyze the different demographic breakdowns within arts commission grants awarded by the City of San Francisco. I chose to use the "San Francisco Arts Commission Grants FY2004-2016" data set from datasf.org. 
+
+## The data set
+
+The data set is a data frame with 18 columns and 1942 rows of information. The columns that I will be focusing on are the grant amount, grant category and the various demographics of the artists and organizations that are receiving the grants, identified as "community focuses" in the data set. 
+
+Much of the data is categorical, with only the grant amount being numerical. 
+
+First I will read in the data. 
+```{r data, echo=TRUE}
+data <- read.csv("San_Francisco_Arts_Commission_Grants_FY2004-2016.csv")
+```
+
+Here I am checking what the set looks like.
+```{r check, echo=TRUE}
+print(is.data.frame(data))
+print(ncol(data))
+print(nrow(data))
+```
+
+
+## Exploring the data set
+
+First, I wanted to see what grant categories existed, and how many grants were awarded per category. 
+```{r explore, echo=TRUE}
+data %>% 
+  group_by(Grant.Category) %>% 
+  tally()
+```
+Here is a breakdown of grant money awarded each year.
+
+```{r}
+year_amt <- data %>% 
+              group_by(Grant.Fiscal.Year) %>% 
+              summarize(Total = sum(Grant.Amount))
+year_amt
+ggplot(year_amt, mapping= aes(x=Grant.Fiscal.Year, y=Total)) +
+  geom_bar(stat="identity")
+```
+Here is a plot showing the breakdown of each grant category for each fiscal year's grants.
+
+```{r}
+year_cat <- data %>% 
+              group_by(Grant.Fiscal.Year) %>% 
+              count(Grant.Category) 
+year_cat             
+
+ggplot(year_cat, aes(fill=Grant.Category, y=n, x=Grant.Fiscal.Year)) + 
+    geom_bar(position="fill", stat="identity")+theme_classic()
+```
+```{r model, echo=TRUE}
+#model <- lm(Community.Focus.Combined ~ Grant.Category, data = data)
+#summary(model)$coef
+
+```
+
+Using this regression model to assess categorical variables, I hoped to predict the demographic group that would receive grant funding depending on the grant category, as well as converting the demographic levels into numerical values. 
